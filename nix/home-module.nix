@@ -12,6 +12,17 @@ let
   cfg = config.programs.quickshell-config;
   system = pkgs.stdenv.hostPlatform.system;
   defaultPackage = quickshellPackages.${system}.default or pkgs.quickshell;
+  runtimePackages = with pkgs; [
+    bash
+    coreutils
+    curl
+    pamixer
+    pavucontrol
+    rofi
+    wireplumber
+    nerd-fonts.iosevka
+    noto-fonts-color-emoji
+  ];
 in
 {
   _class = "homeManager";
@@ -37,9 +48,17 @@ in
       default = true;
       description = "Start quickshell automatically with the user's graphical session.";
     };
+
+    extraPackages = lib.mkOption {
+      type = lib.types.listOf lib.types.package;
+      default = [ ];
+      description = "Additional packages used by commands launched from the Quickshell configuration.";
+    };
   };
 
   config = lib.mkIf cfg.enable {
+    home.packages = runtimePackages ++ cfg.extraPackages;
+
     programs.quickshell = {
       enable = true;
       package = cfg.package;

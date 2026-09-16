@@ -79,19 +79,19 @@ Pill {
     Process {
         id: muteProcess
         command: ["pamixer", "--toggle-mute"]
-        onExited: (exitCode, exitStatus) => root.refresh()
+        onRunningChanged: if (!running) root.refresh()
     }
 
     Process {
         id: upProcess
         command: ["pamixer", "--increase", "5"]
-        onExited: (exitCode, exitStatus) => root.refresh()
+        onRunningChanged: if (!running) root.refresh()
     }
 
     Process {
         id: downProcess
         command: ["pamixer", "--decrease", "5"]
-        onExited: (exitCode, exitStatus) => root.refresh()
+        onRunningChanged: if (!running) root.refresh()
     }
 
     Timer {

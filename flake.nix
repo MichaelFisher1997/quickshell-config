@@ -27,12 +27,36 @@
 
       quickshellPackage = system: quickshell.packages.${system}.default;
 
+      runtimePackages = pkgs: with pkgs; [
+        bash
+        coreutils
+        curl
+        pamixer
+        pavucontrol
+        rofi
+        wireplumber
+      ];
+
+      fontPackages = pkgs: with pkgs; [
+        nerd-fonts.iosevka
+        noto-fonts-color-emoji
+      ];
+
+      fontConfig = pkgs: pkgs.makeFontsConf {
+        fontDirectories = fontPackages pkgs;
+      };
+
       quickshellConfigWrapper =
         pkgs: system:
+        let
+          quickshellPkg = quickshellPackage system;
+          fontConfigFile = fontConfig pkgs;
+        in
         pkgs.writeShellApplication {
           name = "quickshell-config";
-          runtimeInputs = [ (quickshellPackage system) ];
+          runtimeInputs = [ quickshellPkg ] ++ runtimePackages pkgs ++ fontPackages pkgs;
           text = ''
+            export FONTCONFIG_FILE=${fontConfigFile}
             exec quickshell --path ${configDir} "$@"
           '';
         };
@@ -68,6 +92,7 @@
           qtDeclarative = pkgs.kdePackages.qtdeclarative;
           quickshellQmlPath = "${quickshellPkg}/lib/qt-6/qml";
           qtQmlPath = "${qtDeclarative}/lib/qt-6/qml";
+          fontConfigFile = fontConfig pkgs;
         in
         {
           default = pkgs.mkShell {
@@ -75,13 +100,14 @@
               quickshellPkg
               qtDeclarative
               pkgs.just
-            ];
+            ] ++ runtimePackages pkgs ++ fontPackages pkgs;
 
             env = {
               QML_IMPORT_PATH = "${quickshellQmlPath}:${qtQmlPath}";
               QML2_IMPORT_PATH = "${quickshellQmlPath}:${qtQmlPath}";
               QUICKSHELL_QML_PATH = quickshellQmlPath;
               QT_QML_PATH = qtQmlPath;
+              FONTCONFIG_FILE = fontConfigFile;
             };
           };
         }

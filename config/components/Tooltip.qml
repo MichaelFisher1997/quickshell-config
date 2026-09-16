@@ -47,7 +47,7 @@ PopupWindow {
             color: "#f4d9e1"
             font.family: "Iosevka"
             font.pixelSize: 13
-            renderType: Text.NativeRendering
+            renderType: root.rich ? Text.QtRendering : Text.NativeRendering
         }
     }
 }

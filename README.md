@@ -22,7 +22,11 @@ just check   # nix flake check + just lint
 just update  # nix flake update
 ```
 
-`nix develop` provides quickshell 0.3.x (upstream flake), `qmllint`/`qmlformat`/`qmlls`, and `just`. `nix run .` runs the config from a store copy (no hot reload).
+`nix develop` provides quickshell 0.3.x (upstream flake), the QML tools, `just`, the CLI tools used by the bar, and the Iosevka/emoji fonts. `nix run .` runs the config from a store copy (no hot reload).
+
+The dictation module calls `nix-tts`, which is a user-specific package and is not available in nixpkgs. Keep it in the user's profile, or add it through `programs.quickshell-config.extraPackages` when using the Home Manager module.
+
+The shell disables Qt's unused XDG desktop portal registration because this layer-shell bar does not use portal APIs.
 
 ## Home Manager
 
@@ -62,6 +66,7 @@ Requires a Home Manager with `programs.quickshell` (26.05 or unstable). The modu
 | `programs.quickshell-config.package` | upstream quickshell for the system | Package to use; `null` to manage it yourself |
 | `programs.quickshell-config.configName` | `"quickshell-config"` | Name of the installed configuration |
 | `programs.quickshell-config.systemd.enable` | `true` | Autostart with the graphical session |
+| `programs.quickshell-config.extraPackages` | `[]` | Additional commands used by the configuration, such as a custom `nix-tts` package |
 
 To disable autostart:
 
