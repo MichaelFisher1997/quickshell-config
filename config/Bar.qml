@@ -47,6 +47,8 @@ PanelWindow {
 
         Launcher {}
         Workspaces {}
+        Backlight {}
+        Battery {}
         PlayerControls {}
         PlayerLabel {}
     }
