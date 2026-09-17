@@ -10,9 +10,11 @@ QtObject {
 
     readonly property var player: {
         const values = Mpris.players.values;
-        if (root.lastActive !== null && values.indexOf(root.lastActive) !== -1) return root.lastActive;
+        if (root.lastActive !== null && values.indexOf(root.lastActive) !== -1)
+            return root.lastActive;
         const playing = values.find(candidate => candidate.playbackState === MprisPlaybackState.Playing);
-        if (playing !== undefined) return playing;
+        if (playing !== undefined)
+            return playing;
         return values.length > 0 ? values[0] : null;
     }
 

@@ -7,91 +7,119 @@ import "../components"
 Pill {
     id: root
 
-    marginTop: 5
-    marginBottom: 5
-    marginLeft: 5
-    marginRight: 5
+    signal drawerRequested
+
+    marginTop: 6
+    marginBottom: 6
+    marginLeft: 2
+    marginRight: 0
 
     padLeft: 5
     padRight: 5
 
-    radius: 8
+    radius: 12
+    color: "transparent"
 
     property bool muted: false
     property int volume: 0
     property string description: ""
+    property bool available: false
+    property string commandError: ""
+    property var pendingCommands: []
+    property bool refreshPending: false
 
     readonly property string icon: root.volume < 33 ? "󰕿" : root.volume < 67 ? "󰖀" : "󰕾"
 
     function refresh() {
-        if (!statusProcess.running) statusProcess.running = true;
+        if (statusProcess.running)
+            root.refreshPending = true;
+        else
+            statusProcess.running = true;
     }
 
+    function setVolume(value) {
+        if (isFinite(value))
+            root.enqueue(["pamixer", "--set-volume", String(Math.round(Math.max(0, Math.min(100, value))))]);
+    }
+
+    function toggleMute() {
+        root.enqueue(["pamixer", "--toggle-mute"]);
+    }
+
+    // Serialize slider, wheel and mute commands so the final requested value wins.
+    function enqueue(command) {
+        root.pendingCommands.push(command);
+        root.runNextCommand();
+    }
+
+    function runNextCommand() {
+        if (commandProcess.running || root.pendingCommands.length === 0)
+            return;
+        commandProcess.command = root.pendingCommands.shift();
+        commandProcess.running = true;
+    }
+
+    // Eww volume widget: green when normal, red when muted
+    // (eww.scss .volume-normal / .volume-muted).
     Text {
         Layout.alignment: Qt.AlignVCenter
-        text: root.muted ? "󰝟" : root.icon + " " + root.volume + "%"
-        color: root.muted ? "#ff000d" : "#f4d9e1"
-        font.family: "Iosevka"
-        font.pixelSize: 14
+        text: !root.available ? "Sound" : root.muted ? "󰝟" : root.icon + " " + root.volume + "%"
+        color: root.muted ? root.thBad : root.thGood
+        font.family: "JetBrainsMono Nerd Font"
+        font.pixelSize: 13
         renderType: Text.NativeRendering
     }
 
-    mouseArea.onClicked: (mouse) => {
+    mouseArea.onClicked: mouse => {
         if (mouse.button === Qt.LeftButton) {
-            muteProcess.running = true;
+            root.drawerRequested();
+        } else if (mouse.button === Qt.MiddleButton) {
+            root.toggleMute();
         } else if (mouse.button === Qt.RightButton) {
             Quickshell.execDetached(["pavucontrol"]);
         }
     }
 
-    mouseArea.onWheel: (wheel) => {
-        if (wheel.angleDelta.y > 0) upProcess.running = true;
-        else downProcess.running = true;
+    mouseArea.onWheel: wheel => {
+        if (wheel.angleDelta.y > 0)
+            root.enqueue(["pamixer", "--increase", "5"]);
+        else if (wheel.angleDelta.y < 0)
+            root.enqueue(["pamixer", "--decrease", "5"]);
         wheel.accepted = true;
-    }
-
-    Tooltip {
-        target: root
-        shown: root.mouseArea.containsMouse
-        text: root.description.length > 0 ? root.description + "\n" + (root.muted ? "Muted" : root.volume + "%") : ""
     }
 
     Process {
         id: statusProcess
-        command: ["sh", "-c", "pamixer --get-volume-human && wpctl inspect @DEFAULT_AUDIO_SINK@ || true"]
+        command: ["sh", "-c", "volume=$(pamixer --get-volume) || exit 1; mute=$(pamixer --get-mute) || exit 1; printf '%s\\n%s\\n' \"$volume\" \"$mute\"; wpctl inspect @DEFAULT_AUDIO_SINK@"]
         stdout: StdioCollector {
             onStreamFinished: {
-                for (const line of this.text.split("\n")) {
-                    const trimmed = line.trim();
-                    if (trimmed === "muted") {
-                        root.muted = true;
-                    } else if (trimmed.endsWith("%")) {
-                        root.muted = false;
-                        root.volume = parseInt(trimmed, 10);
-                    } else if (trimmed.indexOf("node.description = ") >= 0) {
-                        root.description = trimmed.slice(trimmed.indexOf("node.description = ") + 19).replace(/"/g, "");
-                    }
+                const lines = this.text.trim().split("\n");
+                root.available = /^\d+$/.test(lines[0]) && (lines[1] === "true" || lines[1] === "false");
+                root.description = "";
+                if (root.available) {
+                    root.volume = Number(lines[0]);
+                    root.muted = lines[1] === "true";
+                    const match = /node\.description\s*=\s*"([^"]+)"/.exec(this.text);
+                    if (match)
+                        root.description = match[1];
                 }
+            }
+        }
+        onExited: {
+            if (root.refreshPending) {
+                root.refreshPending = false;
+                Qt.callLater(root.refresh);
             }
         }
     }
 
     Process {
-        id: muteProcess
-        command: ["pamixer", "--toggle-mute"]
-        onRunningChanged: if (!running) root.refresh()
-    }
-
-    Process {
-        id: upProcess
-        command: ["pamixer", "--increase", "5"]
-        onRunningChanged: if (!running) root.refresh()
-    }
-
-    Process {
-        id: downProcess
-        command: ["pamixer", "--decrease", "5"]
-        onRunningChanged: if (!running) root.refresh()
+        id: commandProcess
+        onExited: (exitCode, exitStatus) => {
+            root.commandError = exitCode === 0 && exitStatus === 0 ? "" : "Volume command failed";
+            root.refresh();
+            Qt.callLater(root.runNextCommand);
+        }
     }
 
     Timer {

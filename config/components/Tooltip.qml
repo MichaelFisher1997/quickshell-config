@@ -20,22 +20,22 @@ PopupWindow {
         gravity: Edges.Bottom | Edges.Right
 
         onAnchoring: {
-            const pos = root.target.QsWindow.contentItem.mapFromItem(
-                root.target,
-                root.target.width / 2 - root.width / 2,
-                root.target.height + 5
-            );
+            const pos = root.target.QsWindow.contentItem.mapFromItem(root.target, root.target.width / 2 - root.width / 2, root.target.height + 5);
             anchor.rect.x = pos.x;
             anchor.rect.y = pos.y;
         }
     }
 
+    // Theme literals kept in sync with the shared palette in Pill.qml
+    // (Eww tooltip: #0f0f17 surface, #bfc9db text, 10px radius).
     Rectangle {
         id: content
-        color: "#282828"
-        radius: 8
-        implicitWidth: label.implicitWidth + 24
-        implicitHeight: label.implicitHeight + 10
+        color: "#f20f0f17"
+        radius: 10
+        border.width: 1
+        border.color: "#14ffffff"
+        implicitWidth: label.implicitWidth + 26
+        implicitHeight: label.implicitHeight + 12
 
         Text {
             id: label
@@ -44,8 +44,8 @@ PopupWindow {
             wrapMode: Text.Wrap
             text: root.rich ? root.text.replace(/\n/g, "<br/>") : root.text
             textFormat: root.rich ? Text.RichText : Text.PlainText
-            color: "#f4d9e1"
-            font.family: "Iosevka"
+            color: "#bfc9db"
+            font.family: "JetBrainsMono Nerd Font"
             font.pixelSize: 13
             renderType: root.rich ? Text.QtRendering : Text.NativeRendering
         }

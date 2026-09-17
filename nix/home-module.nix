@@ -20,6 +20,7 @@ let
     pavucontrol
     rofi
     wireplumber
+    nerd-fonts.jetbrains-mono
     nerd-fonts.iosevka
     noto-fonts-color-emoji
   ];
