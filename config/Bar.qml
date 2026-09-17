@@ -41,6 +41,32 @@ PanelWindow {
             root.openDrawer(section);
     }
 
+    // Screenshot selection tools (slurp, which hyprshot and grim wrappers
+    // run, and hyprpicker for hyprshot --freeze) map fullscreen overlay
+    // layer surfaces and take the input focus. That clears our dismissal
+    // grab and drops pointer hover from the drawer, which used to close it
+    // before the shot was taken. Count the overlays so the drawer holds
+    // still while one is up and the grab re-arms once it goes away.
+    property int screenshotOverlays: 0
+    readonly property bool screenshotActive: root.screenshotOverlays > 0
+
+    function handleHyprlandEvent(event) {
+        if (event.data !== "selection" && event.data !== "hyprpicker")
+            return;
+        if (event.name === "openlayer")
+            root.screenshotOverlays++;
+        else if (event.name === "closelayer")
+            root.screenshotOverlays = Math.max(0, root.screenshotOverlays - 1);
+    }
+
+    Connections {
+        target: Hyprland
+
+        function onRawEvent(event) {
+            root.handleHyprlandEvent(event);
+        }
+    }
+
     anchors {
         top: true
         left: true
@@ -57,15 +83,31 @@ PanelWindow {
     WlrLayershell.keyboardFocus: root.drawerOpen ? WlrKeyboardFocus.OnDemand : WlrKeyboardFocus.None
 
     // The compositor dismisses the grab on outside clicks, without a desktop overlay.
+    // Release it while a screenshot overlay owns the input: it must receive the
+    // selection keys, and the re-armed grab keeps dismissing the drawer afterward.
     HyprlandFocusGrab {
         windows: [root]
-        active: root.drawerOpen
-        onCleared: root.closeDrawer()
+        active: root.drawerOpen && !root.screenshotActive
+        onCleared: dismissTimer.restart()
     }
 
+    // An overlay maps right as it takes over input, so the grab can be cleared
+    // a frame before the openlayer event arrives. Wait briefly before treating
+    // the clear as an outside click so captures are not cut short.
+    Timer {
+        id: dismissTimer
+        interval: 150
+        onTriggered: {
+            if (!root.screenshotActive)
+                root.closeDrawer();
+        }
+    }
+
+    // Suspended while a selection overlay is up: the pointer is on the
+    // overlay then, so hover never reaches the drawer.
     Timer {
         interval: 3000
-        running: root.drawerOpen && !drawer.hovered && !controlsHover.hovered
+        running: root.drawerOpen && !root.screenshotActive && !drawer.hovered && !controlsHover.hovered
         onTriggered: root.closeDrawer()
     }
 
