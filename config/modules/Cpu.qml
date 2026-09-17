@@ -6,16 +6,16 @@ import "../components"
 Pill {
     id: root
 
-    marginTop: 5
-    marginBottom: 5
-    marginLeft: 5
-    marginRight: 5
+    marginTop: 6
+    marginBottom: 6
+    marginLeft: 2
+    marginRight: 2
 
     padLeft: 10
     padRight: 10
 
-    radius: 16
-    color: "#282828"
+    radius: 12
+    color: "transparent"
 
     property bool alt: false
     property real usage: 0
@@ -25,11 +25,13 @@ Pill {
 
     function updateUsage(text) {
         const line = text.split("\n")[0].trim();
-        if (!line.startsWith("cpu ")) return;
+        if (!line.startsWith("cpu "))
+            return;
         const fields = line.split(/\s+/).slice(1).map(Number);
         const idle = fields[3] + (fields[4] || 0);
         let total = 0;
-        for (let i = 0; i < 8 && i < fields.length; i++) total += fields[i];
+        for (let i = 0; i < 8 && i < fields.length; i++)
+            total += fields[i];
         if (root.lastTotal > 0 && total > root.lastTotal) {
             const totalDelta = total - root.lastTotal;
             const idleDelta = idle - root.lastIdle;
@@ -41,18 +43,21 @@ Pill {
 
     function updateFrequency(text) {
         const matches = text.match(/^cpu MHz\s*:\s*[\d.]+/gm);
-        if (!matches || matches.length === 0) return;
+        if (!matches || matches.length === 0)
+            return;
         let sum = 0;
-        for (const match of matches) sum += parseFloat(match.split(":")[1]);
+        for (const match of matches)
+            sum += parseFloat(match.split(":")[1]);
         root.frequency = sum / matches.length / 1000;
     }
 
+    // Eww CPU widget: lilac text (eww.scss .cpu_text).
     Text {
         Layout.alignment: Qt.AlignVCenter
         text: root.alt ? "󰻠 " + root.frequency.toFixed(2) + " GHz" : "󰻠 " + Math.round(root.usage) + "%"
-        color: "#f4d9e1"
-        font.family: "Iosevka"
-        font.pixelSize: 14
+        color: root.thAccentStrong
+        font.family: "JetBrainsMono Nerd Font"
+        font.pixelSize: 13
         renderType: Text.NativeRendering
     }
 

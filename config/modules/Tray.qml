@@ -8,17 +8,17 @@ import "../components"
 Pill {
     id: root
 
-    marginTop: 0
-    marginBottom: 0
-    marginLeft: 10
+    marginTop: 4
+    marginBottom: 4
+    marginLeft: 0
     marginRight: 0
 
-    padLeft: 13
-    padRight: 15
+    padLeft: 12
+    padRight: 12
 
-    radius: 24
-    color: "#282828"
-    spacing: 5
+    radius: 14
+    color: "transparent"
+    spacing: 6
 
     readonly property int activeCount: SystemTray.items.values.filter(item => item.status !== Status.Passive).length
 
@@ -48,9 +48,11 @@ Pill {
                 anchors.fill: parent
                 acceptedButtons: Qt.LeftButton | Qt.RightButton
                 hoverEnabled: true
-                onClicked: (mouse) => {
-                    if (mouse.button === Qt.LeftButton) trayItem.modelData.activate();
-                    else trayItem.modelData.display(QsWindow.window, mouse.x, mouse.y);
+                onClicked: mouse => {
+                    if (mouse.button === Qt.LeftButton)
+                        trayItem.modelData.activate();
+                    else
+                        trayItem.modelData.display(QsWindow.window, mouse.x, mouse.y);
                 }
             }
 

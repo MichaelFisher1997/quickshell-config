@@ -7,15 +7,15 @@ import "../components"
 Pill {
     id: root
 
-    marginTop: 5
-    marginBottom: 5
-    marginLeft: 5
-    marginRight: 5
+    marginTop: 6
+    marginBottom: 6
+    marginLeft: 0
+    marginRight: 2
 
     padLeft: 10
     padRight: 10
 
-    radius: 16
+    radius: 12
     minWidth: 24
 
     property string status: "idle"
@@ -23,17 +23,23 @@ Pill {
     property string dictationTooltip: ""
 
     readonly property color stateColor: {
-        if (root.status === "recording" || root.status === "error") return "#f7768e";
-        if (root.status === "transcribing") return "#e0af68";
-        if (root.status === "done") return "#9ece6a";
-        return "#e5809e";
+        if (root.status === "recording" || root.status === "error")
+            return root.thBad;
+        if (root.status === "transcribing")
+            return root.thWarn;
+        if (root.status === "done")
+            return root.thGood;
+        return root.thAccent;
     }
 
     readonly property color stateBackground: {
-        if (root.status === "recording" || root.status === "error") return "#29f7768e";
-        if (root.status === "transcribing") return "#24e0af68";
-        if (root.status === "done") return "#1f9ece6a";
-        return "#282828";
+        if (root.status === "recording" || root.status === "error")
+            return root.thBadBg;
+        if (root.status === "transcribing")
+            return root.thWarnBg;
+        if (root.status === "done")
+            return root.thGoodBg;
+        return root.thSurface;
     }
 
     color: root.stateBackground
@@ -42,8 +48,8 @@ Pill {
         Layout.alignment: Qt.AlignVCenter
         text: root.dictationText
         color: root.stateColor
-        font.family: "Iosevka"
-        font.pixelSize: 14
+        font.family: "JetBrainsMono Nerd Font"
+        font.pixelSize: 13
         renderType: Text.NativeRendering
         font.weight: Font.Black
     }

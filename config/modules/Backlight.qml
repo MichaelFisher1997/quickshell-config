@@ -7,15 +7,16 @@ import "../components"
 Pill {
     id: root
 
-    marginTop: 5
-    marginBottom: 5
-    marginLeft: 5
-    marginRight: 5
+    marginTop: 6
+    marginBottom: 6
+    marginLeft: 2
+    marginRight: 2
 
     padLeft: 5
     padRight: 5
 
-    radius: 8
+    radius: 12
+    color: "transparent"
 
     property string device: "intel_backlight"
     property bool present: false
@@ -24,10 +25,7 @@ Pill {
 
     readonly property int percent: root.maxBrightness > 0 ? Math.round(root.brightness * 100 / root.maxBrightness) : 100
 
-    readonly property var icons: [
-        "", "", "", "", "",
-        "", "", "", ""
-    ]
+    readonly property var icons: ["", "", "", "", "", "", "", "", ""]
 
     readonly property string icon: {
         const divisor = Math.max(1, Math.floor(100 / root.icons.length));
@@ -37,26 +35,24 @@ Pill {
 
     visible: root.present
 
+    // Eww brightness widget: peach icon (eww.scss .bright_icon).
     Text {
         Layout.alignment: Qt.AlignVCenter
         text: root.icon + " " + root.percent + "%"
-        color: "#9ece6a"
-        font.family: "Iosevka"
-        font.pixelSize: 14
+        color: root.thPeach
+        font.family: "JetBrainsMono Nerd Font"
+        font.pixelSize: 13
         renderType: Text.NativeRendering
     }
 
-    mouseArea.onWheel: (wheel) => {
-        if (!root.present || root.maxBrightness <= 0) return;
+    mouseArea.onWheel: wheel => {
+        if (!root.present || root.maxBrightness <= 0)
+            return;
         const step = Math.round(root.maxBrightness / 100);
         const delta = wheel.angleDelta.y > 0 ? step : -step;
         const target = Math.max(0, Math.min(root.maxBrightness, root.brightness + delta));
         root.brightness = target;
-        Quickshell.execDetached([
-            "sh",
-            "-c",
-            "printf '%s' " + target + " > /sys/class/backlight/" + root.device + "/brightness"
-        ]);
+        Quickshell.execDetached(["sh", "-c", "printf '%s' " + target + " > /sys/class/backlight/" + root.device + "/brightness"]);
         wheel.accepted = true;
     }
 
@@ -68,12 +64,7 @@ Pill {
 
     Process {
         id: statusProcess
-        command: [
-            "sh",
-            "-c",
-            "cat /sys/class/backlight/" + root.device + "/brightness"
-            + " /sys/class/backlight/" + root.device + "/max_brightness 2>/dev/null || echo absent"
-        ]
+        command: ["sh", "-c", "cat /sys/class/backlight/" + root.device + "/brightness" + " /sys/class/backlight/" + root.device + "/max_brightness 2>/dev/null || echo absent"]
         stdout: StdioCollector {
             onStreamFinished: {
                 const lines = this.text.trim().split("\n").map(line => line.trim()).filter(line => line.length > 0);

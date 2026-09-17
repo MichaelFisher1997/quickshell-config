@@ -6,27 +6,29 @@ import "../components"
 Pill {
     id: root
 
-    marginTop: 0
-    marginBottom: 0
+    marginTop: 4
+    marginBottom: 4
     marginLeft: 0
-    marginRight: 0
+    marginRight: 8
 
-    padLeft: 13
-    padRight: 20
+    padLeft: 8
+    padRight: 8
 
-    radius: 24
-    color: "#282828"
+    radius: 8
+    color: root.thAccentSurface
 
+    // Eww app launcher button: apps glyph in red-pink on the sunken
+    // chip surface (eww.scss .launcher_icon).
     Text {
         Layout.alignment: Qt.AlignVCenter
-        text: "󰈸"
+        text: "\uF003B"
         color: "#e5809e"
-        font.family: "Iosevka"
-        font.pixelSize: 20
+        font.family: "JetBrainsMono Nerd Font"
+        font.pixelSize: 18
         renderType: Text.NativeRendering
     }
 
-    mouseArea.onClicked: (mouse) => {
+    mouseArea.onClicked: mouse => {
         if (mouse.button === Qt.LeftButton) {
             Quickshell.execDetached(["rofi", "-show", "drun"]);
         } else if (mouse.button === Qt.RightButton) {

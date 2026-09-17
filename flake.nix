@@ -38,6 +38,7 @@
       ];
 
       fontPackages = pkgs: with pkgs; [
+        nerd-fonts.jetbrains-mono
         nerd-fonts.iosevka
         noto-fonts-color-emoji
       ];

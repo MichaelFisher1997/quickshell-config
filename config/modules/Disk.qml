@@ -6,16 +6,16 @@ import "../components"
 Pill {
     id: root
 
-    marginTop: 5
-    marginBottom: 5
-    marginLeft: 5
-    marginRight: 5
+    marginTop: 6
+    marginBottom: 6
+    marginLeft: 2
+    marginRight: 8
 
     padLeft: 10
     padRight: 10
 
-    radius: 16
-    color: "#282828"
+    radius: 12
+    color: "transparent"
 
     property bool alt: false
     property real percent: 0
@@ -39,20 +39,20 @@ Pill {
         const total = Number(fields[1]);
         const used = Number(fields[2]);
         const available = Number(fields[3]);
-        if (!isFinite(total) || total <= 0) return;
+        if (!isFinite(total) || total <= 0)
+            return;
         root.totalBytes = total;
         root.usedBytes = used;
         root.percent = Math.floor(available * 100 / total);
     }
 
+    // Eww disk widget: sage text (eww.scss .disk_text).
     Text {
         Layout.alignment: Qt.AlignVCenter
-        text: root.alt
-            ? "󰋊 " + root.powFormat(root.usedBytes) + "/" + root.powFormat(root.totalBytes) + " GiB"
-            : "󰋊 " + root.percent + "%"
-        color: "#f4d9e1"
-        font.family: "Iosevka"
-        font.pixelSize: 14
+        text: root.alt ? "󰋊 " + root.powFormat(root.usedBytes) + "/" + root.powFormat(root.totalBytes) + " GiB" : "󰋊 " + root.percent + "%"
+        color: "#afbea2"
+        font.family: "JetBrainsMono Nerd Font"
+        font.pixelSize: 13
         renderType: Text.NativeRendering
     }
 

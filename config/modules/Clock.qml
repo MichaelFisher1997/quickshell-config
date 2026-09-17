@@ -6,55 +6,60 @@ import "../components"
 Pill {
     id: root
 
-    marginTop: 0
-    marginBottom: 0
-    marginLeft: 10
-    marginRight: 0
+    signal drawerRequested
+
+    marginTop: 4
+    marginBottom: 4
+    marginLeft: 2
+    marginRight: 2
 
     padLeft: 13
     padRight: 15
+    spacing: 4
 
-    radius: 24
-    color: "#282828"
+    radius: 14
+    color: "transparent"
 
-    readonly property string calendar: root.calendarText(clock.date)
-
-    function calendarText(date) {
-        const start = (new Date(date.getFullYear(), date.getMonth(), 1).getDay() + 6) % 7;
-        const days = new Date(date.getFullYear(), date.getMonth() + 1, 0).getDate();
-        const header = "Mo Tu We Th Fr Sa Su";
-        let rows = [];
-        let row = [];
-        for (let i = 0; i < start; i++) row.push("  ");
-        for (let day = 1; day <= days; day++) {
-            row.push(String(day).padStart(2, " "));
-            if (row.length === 7) {
-                rows.push(row.join(" "));
-                row = [];
-            }
-        }
-        if (row.length > 0) rows.push(row.join(" ").replace(/\s+$/, ""));
-        return header + "\n" + rows.join("\n");
-    }
+    readonly property alias currentDate: clock.date
 
     SystemClock {
         id: clock
         precision: SystemClock.Minutes
     }
 
+    // Eww clock: bold cool-gray time, lilac date, faint separator
+    // (eww.scss .clock_time_class / .clock_date_class / .separ).
     Text {
         Layout.alignment: Qt.AlignVCenter
-        text: " " + Qt.formatDateTime(clock.date, "HH:mm | dd/MM/yy")
-        color: "#e6b9c6"
-        font.family: "Iosevka"
+        text: Qt.formatDateTime(clock.date, "HH:mm")
+        color: root.thText
+        font.family: "JetBrainsMono Nerd Font"
+        font.pixelSize: 16
+        renderType: Text.NativeRendering
+        font.bold: true
+    }
+
+    Text {
+        Layout.alignment: Qt.AlignVCenter
+        text: "|"
+        color: root.thFaint
+        font.family: "JetBrainsMono Nerd Font"
         font.pixelSize: 14
         renderType: Text.NativeRendering
         font.bold: true
     }
 
-    Tooltip {
-        target: root
-        shown: root.mouseArea.containsMouse
-        text: Qt.formatDateTime(clock.date, "yyyy MMMM") + "\n" + root.calendar
+    Text {
+        Layout.alignment: Qt.AlignVCenter
+        text: Qt.formatDateTime(clock.date, "dd/MM/yy")
+        color: root.thAccentStrong
+        font.family: "JetBrainsMono Nerd Font"
+        font.pixelSize: 15
+        renderType: Text.NativeRendering
+    }
+
+    mouseArea.onClicked: mouse => {
+        if (mouse.button === Qt.LeftButton)
+            root.drawerRequested();
     }
 }
