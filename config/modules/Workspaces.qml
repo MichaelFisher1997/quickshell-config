@@ -82,9 +82,12 @@ Pill {
                 id: hover
                 anchors.fill: parent
                 hoverEnabled: true
-                onClicked: button.modelData.activate()
+                // Hyprland lua config mode re-evaluates raw dispatches as Lua,
+                // so modelData.activate()'s plain "workspace <id>" dispatch is
+                // rejected; send the Lua focus expression instead.
+                onClicked: Hyprland.dispatch(`hl.dsp.focus({ workspace = "${button.modelData.id}" })`);
                 onWheel: wheel => {
-                    Hyprland.dispatch("workspace " + (wheel.angleDelta.y > 0 ? "-1" : "+1"));
+                    Hyprland.dispatch(`hl.dsp.focus({ workspace = "${wheel.angleDelta.y > 0 ? "e-1" : "e+1"}" })`);
                     wheel.accepted = true;
                 }
             }

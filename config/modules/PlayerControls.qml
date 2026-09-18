@@ -42,15 +42,25 @@ Pill {
         renderType: Text.NativeRendering
     }
 
+    // Left-click toggles playback; prev/next live on middle/right and fall
+    // back to toggling when the player reports no support (e.g. Spotify's
+    // canGoPrevious = false), so a click never silently does nothing.
     mouseArea.onClicked: mouse => {
         if (!root.player)
             return;
-        if (mouse.button === Qt.LeftButton)
-            root.player.previous();
-        else if (mouse.button === Qt.MiddleButton)
+        if (mouse.button === Qt.MiddleButton) {
+            if (root.player.canGoPrevious)
+                root.player.previous();
+            else
+                root.player.togglePlaying();
+        } else if (mouse.button === Qt.RightButton) {
+            if (root.player.canGoNext)
+                root.player.next();
+            else
+                root.player.togglePlaying();
+        } else {
             root.player.togglePlaying();
-        else
-            root.player.next();
+        }
     }
 
     Tooltip {
