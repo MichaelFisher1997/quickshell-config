@@ -81,19 +81,19 @@ Pill {
     MediaButton {
         icon: "󰒮"
         supported: root.player !== null && root.player.canGoPrevious
-        onClicked: if (root.player) root.player.previous()
+        onActivated: if (root.player) root.player.previous()
     }
 
     MediaButton {
         icon: root.playing ? "󰐌" : "󰏥"
         supported: root.player !== null && root.player.canPause
-        onClicked: if (root.player) root.player.togglePlaying()
+        onActivated: if (root.player) root.player.togglePlaying()
     }
 
     MediaButton {
         icon: "󰒭"
         supported: root.player !== null && root.player.canGoNext
-        onClicked: if (root.player) root.player.next()
+        onActivated: if (root.player) root.player.next()
     }
 
     Tooltip {
