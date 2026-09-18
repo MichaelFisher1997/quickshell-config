@@ -10,12 +10,13 @@ QtObject {
 
     readonly property var player: {
         const values = Mpris.players.values;
-        if (root.lastActive !== null && values.indexOf(root.lastActive) !== -1)
-            return root.lastActive;
+        const lastKnown = root.lastActive !== null && values.indexOf(root.lastActive) !== -1 ? root.lastActive : null;
+        if (lastKnown !== null && lastKnown.playbackState === MprisPlaybackState.Playing)
+            return lastKnown;
         const playing = values.find(candidate => candidate.playbackState === MprisPlaybackState.Playing);
         if (playing !== undefined)
             return playing;
-        return values.length > 0 ? values[0] : null;
+        return lastKnown !== null ? lastKnown : (values.length > 0 ? values[0] : null);
     }
 
     property Instantiator activeTracker: Instantiator {
