@@ -33,34 +33,67 @@ Pill {
 
     visible: root.active
 
-    Text {
-        Layout.alignment: Qt.AlignVCenter
-        text: "󰒮 " + (root.playing ? "󰐌" : "󰏥") + " 󰒭"
-        color: root.stateColor
-        font.family: "JetBrainsMono Nerd Font"
-        font.pixelSize: 15
-        renderType: Text.NativeRendering
+    // Separate left-clickable transport icons, one per action (like the
+    // Eww media strip buttons). Dimmed when the player reports no support.
+    component MediaButton: Item {
+        id: btn
+
+        property string icon
+        property bool supported: true
+        signal activated()
+
+        Layout.fillHeight: true
+        implicitWidth: label.implicitWidth + 12
+
+        opacity: root.player === null ? 0.4 : supported ? 1 : 0.4
+        Behavior on opacity {
+            NumberAnimation { duration: 120 }
+        }
+
+        Rectangle {
+            anchors.fill: parent
+            radius: 10
+            color: hover.containsMouse ? root.thSurfaceHover : "transparent"
+
+            Behavior on color {
+                ColorAnimation { duration: 120 }
+            }
+        }
+
+        Text {
+            id: label
+            anchors.centerIn: parent
+            text: btn.icon
+            color: root.stateColor
+            font.family: "JetBrainsMono Nerd Font"
+            font.pixelSize: 15
+            renderType: Text.NativeRendering
+        }
+
+        MouseArea {
+            id: hover
+            anchors.fill: parent
+            hoverEnabled: true
+            onClicked: btn.activated()
+        }
     }
 
-    // Left-click toggles playback; prev/next live on middle/right and fall
-    // back to toggling when the player reports no support (e.g. Spotify's
-    // canGoPrevious = false), so a click never silently does nothing.
-    mouseArea.onClicked: mouse => {
-        if (!root.player)
-            return;
-        if (mouse.button === Qt.MiddleButton) {
-            if (root.player.canGoPrevious)
-                root.player.previous();
-            else
-                root.player.togglePlaying();
-        } else if (mouse.button === Qt.RightButton) {
-            if (root.player.canGoNext)
-                root.player.next();
-            else
-                root.player.togglePlaying();
-        } else {
-            root.player.togglePlaying();
-        }
+    MediaButton {
+        icon: "󰒮"
+        supported: root.player !== null && root.player.canGoPrevious
+        onClicked: if (root.player) root.player.previous()
+    }
+
+    MediaButton {
+        icon: root.playing ? "󰐌" : "󰏥"
+        supported: root.player !== null && root.player.canPause
+        onClicked: if (root.player) root.player.togglePlaying()
+    }
+
+    MediaButton {
+        icon: "󰒭"
+        supported: root.player !== null && root.player.canGoNext
+        onClicked: if (root.player) root.player.next()
     }
 
     Tooltip {
