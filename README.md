@@ -10,7 +10,7 @@ The shell is flush with all four screen edges: a 40px top panel joins 10px side 
 - **Center** (screen-centered): Weather, Clock, Volume.
 - **Right**: Dictation, CPU, Memory, Disk, Tray.
 
-Modules sit directly on the near-black frame surface like the Eww bar: no pill fill, just text with the Eww per-module colors — CPU lilac `#d7beda`, memory peach `#e0b089`, disk and battery sage `#afbea2`, volume green `#98c379` (red `#e06c75` when muted), clock time cool gray with a lilac date, and weather/brightness in peach. Workspaces render as Font Awesome circles — hollow when occupied, filled when focused — each in its workspace color (1 red `#e06c75`, 2 orange `#d19a66`, 3 yellow `#e5c07b`, 4 green `#98c379`, 5/9 cyan `#56b6c2`, 6 blue `#61afef`, 7 violet `#c678dd`, 8 pink `#ff79c6`, 10 gray `#abb2bf`). The launcher is the Eww apps glyph in red-pink `#e5809e` on a sunken `#22242b` chip, and the media controls/label form slender outlined pills with a hairline `rgba(255,255,255,0.06)` ring. Hover feedback is the Eww white 6% wash, with press feedback and short color transitions on state changes; green/yellow/red stay reserved for real states (battery, dictation, muted volume).
+Modules sit directly on the near-black frame surface like the Eww bar: no pill fill, just text with the Eww per-module colors — CPU lilac `#d7beda`, memory peach `#e0b089`, disk and battery sage `#afbea2`, volume green `#98c379` (red `#e06c75` when muted), clock time cool gray with a lilac date, and weather/brightness in peach. Workspaces render as Font Awesome circles — hollow when occupied, filled when focused — each in its workspace color (1 red `#e06c75`, 2 orange `#d19a66`, 3 yellow `#e5c07b`, 4 green `#98c379`, 5/9 cyan `#56b6c2`, 6 blue `#61afef`, 7 violet `#c678dd`, 8 pink `#ff79c6`, 10 gray `#abb2bf`). The launcher is a bundled app-grid SVG in red-pink `#e5809e` on a sunken `#22242b` chip, and the media controls/label form slender outlined pills with a hairline `rgba(255,255,255,0.06)` ring. Hover feedback is the Eww white 6% wash, with press feedback and short color transitions on state changes; green/yellow/red stay reserved for real states (battery, dictation, muted volume).
 
 The desktop opening and decorative borders pass pointer input through. Four transparent reservation surfaces keep tiled/maximized windows inside the frame; the full-screen drawing surface itself reserves no space. Frame dimensions live in `config/Bar.qml`. The integrated perimeter is combined with a top-attached dashboard drawer (below); Caelestia's wallpaper picker and other drawers are not implemented.
 
@@ -28,7 +28,7 @@ The desktop opening and decorative borders pass pointer input through. Four tran
 
 | Module | Shows | Interactions |
 | --- | --- | --- |
-| Launcher | apps glyph, red-pink on sunken chip | Left: `rofi -show drun`; Right: `~/.config/rofi/run.sh` |
+| Launcher | app-grid SVG, red-pink on sunken chip | Left: `rofi -show drun`; Right: `~/.config/rofi/run.sh` |
 | Workspaces | hollow rings (filled when focused), one color each | Click to activate; wheel to cycle; urgent/focused highlight |
 | Backlight | brightness % | Wheel writes to sysfs; tooltip |
 | Battery | charge % / time | Any click alternates views; state colors; tooltip |
@@ -40,7 +40,7 @@ The desktop opening and decorative borders pass pointer input through. Four tran
 | CPU | usage % / GHz | Any click: alternate usage / frequency; does not open the drawer |
 | Memory | used % / used-total GiB | Any click: alternate views; does not open the drawer |
 | Disk | available space % / used-total | Any click: alternate views; does not open the drawer |
-| Tray | status notifier icons | Left: activate; Right: menu; passive items hidden; tooltips |
+| Tray | status notifier icons | Left: activate (menu for menu-only apps); Right: app menu anchored below the icon; Middle: secondary action; wheel: app scroll action; passive items hidden; tooltips |
 
 Clicking a trigger for the tab that is already open toggles the drawer closed; clicking a different trigger while open switches tabs without closing.
 The clock opens the Dashboard (first tab); the weather card inside it switches to the full Weather tab. Open the drawer through the clock, weather, or volume, then select Performance to view the gauges.
@@ -84,7 +84,7 @@ just update  # nix flake update
 
 The dictation module calls `nix-tts`, which is a user-specific package and is not available in nixpkgs. Keep it in the user's profile, or add it through `programs.quickshell-config.extraPackages` when using the Home Manager module.
 
-The shell disables Qt's unused XDG desktop portal registration because this layer-shell bar does not use portal APIs.
+The shell uses `UseQApplication` for native tray menus and disables Qt's unused XDG desktop portal registration because this layer-shell bar does not use portal APIs. Changes to root launch pragmas require restarting Quickshell, not just hot reload.
 
 Bluetooth requires a running system BlueZ service and an available adapter (on NixOS, enable `hardware.bluetooth.enable`). Power and pairing remain managed by your system or existing Bluetooth manager. Battery reporting depends on device/BlueZ support; unavailable telemetry is not estimated. No additional Bluetooth CLI dependency is needed. Audio continues to use the packaged `pamixer`, `wpctl`, and `pavucontrol`; muted volume is polled independently of mute state.
 
