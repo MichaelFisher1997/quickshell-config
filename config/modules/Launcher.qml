@@ -17,15 +17,13 @@ Pill {
     radius: 8
     color: root.thAccentSurface
 
-    // Eww app launcher button: apps glyph in red-pink on the sunken
-    // chip surface (eww.scss .launcher_icon).
-    Text {
+    // Bundled artwork avoids malformed glyphs and font-dependent fallbacks.
+    Image {
         Layout.alignment: Qt.AlignVCenter
-        text: "\uF003B"
-        color: "#e5809e"
-        font.family: "JetBrainsMono Nerd Font"
-        font.pixelSize: 18
-        renderType: Text.NativeRendering
+        Layout.preferredWidth: 18
+        Layout.preferredHeight: 18
+        source: Qt.resolvedUrl("../assets/apps.svg")
+        fillMode: Image.PreserveAspectFit
     }
 
     mouseArea.onClicked: mouse => {

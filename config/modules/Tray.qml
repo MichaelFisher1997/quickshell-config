@@ -34,31 +34,53 @@ Pill {
 
             visible: trayItem.modelData.status !== Status.Passive
             Layout.alignment: Qt.AlignVCenter
-            implicitWidth: 16
-            implicitHeight: 16
+            implicitWidth: 24
+            implicitHeight: 28
 
             IconImage {
-                anchors.fill: parent
+                anchors.centerIn: parent
+                implicitSize: 16
                 source: trayItem.modelData.icon
                 mipmap: true
+            }
+
+            QsMenuAnchor {
+                id: menuAnchor
+                menu: trayItem.modelData.menu
+                // The anchor maps the icon into its window's coordinates,
+                // including the bar's right alignment and monitor position.
+                anchor.item: trayItem
+                anchor.edges: Edges.Bottom | Edges.Right
+                anchor.gravity: Edges.Bottom | Edges.Left
             }
 
             MouseArea {
                 id: mouseArea
                 anchors.fill: parent
-                acceptedButtons: Qt.LeftButton | Qt.RightButton
+                acceptedButtons: Qt.LeftButton | Qt.MiddleButton | Qt.RightButton
                 hoverEnabled: true
+                cursorShape: Qt.PointingHandCursor
                 onClicked: mouse => {
-                    if (mouse.button === Qt.LeftButton)
+                    if (mouse.button === Qt.MiddleButton) {
+                        trayItem.modelData.secondaryActivate();
+                    } else if (mouse.button === Qt.RightButton || trayItem.modelData.onlyMenu) {
+                        if (trayItem.modelData.hasMenu)
+                            menuAnchor.open();
+                    } else {
                         trayItem.modelData.activate();
-                    else
-                        trayItem.modelData.display(QsWindow.window, mouse.x, mouse.y);
+                    }
+                }
+                onWheel: wheel => {
+                    if (wheel.angleDelta.y !== 0)
+                        trayItem.modelData.scroll(wheel.angleDelta.y, false);
+                    if (wheel.angleDelta.x !== 0)
+                        trayItem.modelData.scroll(wheel.angleDelta.x, true);
                 }
             }
 
             Tooltip {
                 target: trayItem
-                shown: mouseArea.containsMouse
+                shown: mouseArea.containsMouse && !menuAnchor.visible
                 text: trayItem.modelData.tooltipTitle + (trayItem.modelData.tooltipDescription.length > 0 ? "\n" + trayItem.modelData.tooltipDescription : "")
             }
         }
