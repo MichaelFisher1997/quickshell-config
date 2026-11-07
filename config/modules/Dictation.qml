@@ -25,7 +25,7 @@ Pill {
     readonly property color stateColor: {
         if (root.status === "recording" || root.status === "error")
             return root.thBad;
-        if (root.status === "transcribing")
+        if (root.status === "finalizing" || root.status === "transcribing")
             return root.thWarn;
         if (root.status === "done")
             return root.thGood;
@@ -35,7 +35,7 @@ Pill {
     readonly property color stateBackground: {
         if (root.status === "recording" || root.status === "error")
             return root.thBadBg;
-        if (root.status === "transcribing")
+        if (root.status === "finalizing" || root.status === "transcribing")
             return root.thWarnBg;
         if (root.status === "done")
             return root.thGoodBg;
@@ -54,7 +54,7 @@ Pill {
         font.weight: Font.Black
     }
 
-    mouseArea.onClicked: Quickshell.execDetached(["nix-tts", "toggle"])
+    mouseArea.onClicked: Quickshell.execDetached(["nix-stt", "toggle"])
 
     Tooltip {
         target: root
@@ -64,7 +64,7 @@ Pill {
 
     Process {
         id: statusProcess
-        command: ["nix-tts", "status"]
+        command: ["nix-stt", "status"]
         stdout: StdioCollector {
             onStreamFinished: {
                 try {

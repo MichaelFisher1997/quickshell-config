@@ -36,7 +36,7 @@ The desktop opening and decorative borders pass pointer input through. Four tran
 | Weather | peach monochrome SVG + temp for Ashton-Under-Lyne | Left: toggle Weather drawer; no hover popup |
 | Clock | `HH:mm \| dd/MM/yy` | Left: toggle Dashboard drawer; no hover popup |
 | Volume | sink volume % / muted state | Left: toggle Sound drawer; Middle: mute; Right: pavucontrol; wheel: ±5%; no hover popup |
-| Dictation | `nix-tts` state | Any click toggles; state colors |
+| Dictation | `nix-stt` state | Any click toggles; state colors |
 | CPU | usage % / GHz | Any click: alternate usage / frequency; does not open the drawer |
 | Memory | used % / used-total GiB | Any click: alternate views; does not open the drawer |
 | Disk | available space % / used-total | Any click: alternate views; does not open the drawer |
@@ -82,7 +82,7 @@ just update  # nix flake update
 
 `nix develop` provides quickshell 0.3.x (upstream flake), the QML tools, `just`, the CLI tools used by the bar, and the fonts (`JetBrainsMono Nerd Font`, the reference Eww bar's primary family, used for text, controls, weather-detail and moon-phase glyphs; plus `Iosevka Nerd Font` as a retained fallback and Noto Color Emoji as an unused-at-runtime fallback). Weather conditions use bundled SVGs rather than font glyphs. `nix run .` runs the config from a store copy (no hot reload).
 
-The dictation module calls `nix-tts`, which is a user-specific package and is not available in nixpkgs. Keep it in the user's profile, or add it through `programs.quickshell-config.extraPackages` when using the Home Manager module.
+The dictation module calls [`nix-stt`](https://github.com/OpenStaticFish/nix-stt), which is not available in nixpkgs. Keep it in the user's profile, or add it through `programs.quickshell-config.extraPackages` when using the Home Manager module.
 
 The shell uses `UseQApplication` for native tray menus and disables Qt's unused XDG desktop portal registration because this layer-shell bar does not use portal APIs. Changes to root launch pragmas require restarting Quickshell, not just hot reload.
 
@@ -126,7 +126,7 @@ Requires a Home Manager with `programs.quickshell` (26.05 or unstable). The modu
 | `programs.quickshell-config.package` | upstream quickshell for the system | Package to use; `null` to manage it yourself |
 | `programs.quickshell-config.configName` | `"quickshell-config"` | Name of the installed configuration |
 | `programs.quickshell-config.systemd.enable` | `true` | Autostart with the graphical session |
-| `programs.quickshell-config.extraPackages` | `[]` | Additional commands used by the configuration, such as a custom `nix-tts` package |
+| `programs.quickshell-config.extraPackages` | `[]` | Additional commands used by the configuration, such as the `nix-stt` package |
 
 To disable autostart:
 
